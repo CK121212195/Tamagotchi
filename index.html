@@ -6,231 +6,235 @@
   <title>Satoshi Egg - Bitcoin Virtual Pet</title>
   <style>
     :root {
-      --bg-color: #0b0c10;
-      --panel-bg: rgba(31, 40, 51, 0.6);
-      --primary: #66fcf1;
-      --secondary: #45a29e;
-      --accent: #f7931a; 
-      --danger: #ff4e50;
-      --text: #c5c6c7;
+      --bg-color: #0b0c10; --panel-bg: rgba(31, 40, 51, 0.6);
+      --primary: #66fcf1; --secondary: #45a29e;
+      --accent: #f7931a; --danger: #ff4e50;
+      --text: #c5c6c7; --mood-color: #ffd700;
     }
     * { box-sizing: border-box; }
     body {
-      margin: 0; padding: 0;
-      background: radial-gradient(circle at center, #1f2833 0%, #0b0c10 100%);
-      color: var(--text);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center;
-      overflow-x: hidden;
+      margin: 0; padding: 0; background: radial-gradient(circle at center, #1f2833 0%, #0b0c10 100%);
+      color: var(--text); font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden;
+      user-select: none;
     }
-    
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
     .crypto-font { font-family: 'Orbitron', sans-serif; }
     
     header {
-      width: 100%; text-align: center; padding: 20px 0;
-      border-bottom: 1px solid rgba(102, 252, 241, 0.2);
-      background: rgba(11, 12, 16, 0.8);
-      backdrop-filter: blur(10px);
-      position: sticky; top: 0; z-index: 10;
+      width: 100%; text-align: center; padding: 15px 0; border-bottom: 1px solid rgba(102, 252, 241, 0.2);
+      background: rgba(11, 12, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 10;
     }
-    h1 {
-      margin: 0; color: var(--accent); font-size: 2rem;
-      text-shadow: 0 0 15px rgba(247, 147, 26, 0.6);
-    }
-    #mempool-status { font-size: 0.9rem; color: var(--primary); margin-top: 5px; font-weight: bold; }
-    
-    main { width: 100%; max-width: 450px; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+    h1 { margin: 0; color: var(--accent); font-size: 1.8rem; text-shadow: 0 0 15px rgba(247, 147, 26, 0.6); }
+    #mempool-status { font-size: 0.8rem; color: var(--primary); margin-top: 5px; }
+
+    main { width: 100%; max-width: 450px; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
     
     .glass-panel {
-      background: var(--panel-bg); backdrop-filter: blur(12px);
-      border: 1px solid rgba(102, 252, 241, 0.1);
-      border-radius: 20px; padding: 20px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      background: var(--panel-bg); backdrop-filter: blur(12px); border: 1px solid rgba(102, 252, 241, 0.1);
+      border-radius: 20px; padding: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
     }
     
-    .hp-container {
-      width: 100%; height: 15px; background: rgba(0,0,0,0.5);
-      border-radius: 10px; overflow: hidden; margin-bottom: 15px;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    #hp-bar {
-      height: 100%; width: 100%;
-      background: linear-gradient(90deg, #ff4e50, #f7931a, #66fcf1);
-      transition: width 0.5s ease;
-    }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-box {
-      background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; text-align: center;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-    .stat-box.full-width { grid-column: span 2; }
-    .stat-label { font-size: 0.8rem; color: #888; }
-    .stat-value { font-size: 1.1rem; color: var(--primary); font-weight: bold; margin-top: 5px; }
+    /* バーの共通スタイル */
+    .bar-wrapper { margin-bottom: 10px; }
+    .bar-label-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 3px; }
+    .bar-bg { width: 100%; height: 12px; background: rgba(0,0,0,0.6); border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+    .bar-fill { height: 100%; transition: width 0.3s ease; }
+    #hp-bar { background: linear-gradient(90deg, var(--danger), var(--accent)); }
+    #mood-bar { background: linear-gradient(90deg, #ff9a9e, #fecfef); }
 
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;}
+    .stat-box { background: rgba(0,0,0,0.3); padding: 8px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+    .stat-label { font-size: 0.75rem; color: #888; }
+    .stat-value { font-size: 1rem; color: var(--primary); font-weight: bold; margin-top: 3px; }
+
+    /* キャラクターエリア */
     #character-container {
-      height: 250px; display: flex; justify-content: center; align-items: center;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(102,252,241,0.08) 0%, transparent 60%);
-      box-shadow: inset 0 0 50px rgba(102, 252, 241, 0.05);
+      height: 250px; display: flex; justify-content: center; align-items: center; border-radius: 20px;
+      background: radial-gradient(circle, rgba(102,252,241,0.08) 0%, rgba(0,0,0,0.5) 100%);
+      box-shadow: inset 0 0 30px rgba(102, 252, 241, 0.05); border: 2px solid rgba(102,252,241,0.2);
+      position: relative; overflow: hidden;
     }
-    .character-svg { width: 160px; height: 160px; filter: drop-shadow(0 0 15px rgba(247,147,26,0.4)); }
+    .character-svg { width: 140px; height: 140px; filter: drop-shadow(0 0 10px rgba(247,147,26,0.3)); transition: transform 0.2s; }
     
-    @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
-    @keyframes pulse { 0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--accent)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 25px var(--accent)); } 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--accent)); } }
+    /* 病気・ゴミのアイコン */
+    .sick-icon { position: absolute; top: 10px; right: 20px; font-size: 2.5rem; animation: blink 1s infinite; display: none; filter: drop-shadow(0 0 10px red); }
+    .junk-icon { position: absolute; font-size: 1.5rem; animation: float 3s infinite; }
+    
+    /* アニメーション */
+    @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+    @keyframes pulse { 0% { transform: scale(1); filter: drop-shadow(0 0 5px var(--accent)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 15px var(--accent)); } 100% { transform: scale(1); filter: drop-shadow(0 0 5px var(--accent)); } }
+    @keyframes jump { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-30px) scale(1.1); } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    @keyframes pop { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(1.5) translateY(-50px); opacity: 0; } }
+    
     .anim-float { animation: float 4s ease-in-out infinite; }
     .anim-pulse { animation: pulse 2s ease-in-out infinite; }
+    .anim-jump { animation: jump 0.5s ease; }
 
+    /* パーティクルエフェクト */
+    .particle { position: absolute; font-size: 1.5rem; font-weight: bold; pointer-events: none; animation: pop 1s ease-out forwards; z-index: 50; }
+
+    /* アクションボタン（2x2グリッド） */
+    .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
     button {
-      background: transparent; border: 2px solid var(--primary); color: var(--primary);
-      padding: 15px 20px; border-radius: 12px; font-size: 1rem; cursor: pointer;
-      font-family: 'Orbitron', sans-serif; font-weight: bold; transition: all 0.3s;
-      width: 100%; margin-bottom: 10px;
+      background: rgba(0,0,0,0.5); border: 1px solid var(--primary); color: var(--primary);
+      padding: 12px; border-radius: 12px; font-size: 0.9rem; cursor: pointer;
+      font-family: 'Orbitron', sans-serif; font-weight: bold; transition: all 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
     }
-    button:hover { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); }
-    button.btn-accent { border-color: var(--accent); color: var(--accent); }
-    button.btn-accent:hover { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent); }
-    
+    button:hover, button:active { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); transform: scale(0.95); }
+    button.btn-feed { border-color: var(--accent); color: var(--accent); }
+    button.btn-feed:hover { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent); }
+    button.btn-play { border-color: #ff9a9e; color: #ff9a9e; }
+    button.btn-play:hover { background: #ff9a9e; color: #000; box-shadow: 0 0 15px #ff9a9e; }
+    button.btn-clean { border-color: #c5c6c7; color: #c5c6c7; }
+    button.btn-clean:hover { background: #c5c6c7; color: #000; }
+    button.btn-cure { border-color: #00f5d4; color: #00f5d4; }
+    button.btn-cure:hover { background: #00f5d4; color: #000; box-shadow: 0 0 15px #00f5d4; }
+    button.btn-full { grid-column: span 2; border-color: #ffd700; color: #ffd700; padding: 15px; }
+
     /* 開発用パネル */
-    .debug-panel {
-      border: 1px dashed #666; padding: 15px; border-radius: 12px; margin-top: 10px;
-      background: rgba(0,0,0,0.4);
-    }
-    .debug-panel button { padding: 10px; font-size: 0.9rem; margin-bottom: 0; }
+    .debug-panel { border: 1px dashed #666; padding: 10px; border-radius: 12px; background: rgba(0,0,0,0.4); display: flex; justify-content: space-between;}
+    .debug-panel button { padding: 8px; font-size: 0.8rem; margin:0; width: 48%; }
 
-    #titles-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; justify-content: center; }
-    .badge {
-      background: linear-gradient(45deg, #ffd700, #f7931a); color: #000;
-      padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;
-    }
+    /* モーダル */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 100; }
+    .modal-content { background: var(--bg-color); border: 1px solid var(--primary); width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; padding: 20px; border-radius: 20px; text-align: center; }
+    .input-group { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: left; }
+    .input-group input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--secondary); background: #000; color: #fff; margin-top: 5px; }
+    
+    #ritual-box { display: none; margin-top: 15px; padding: 20px; background: #000; border: 2px solid #ff4e50; border-radius: 10px; }
+    #ritual-bar { height: 10px; background: #ff4e50; width: 0%; transition: width 0.1s; }
 
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-      display: none; justify-content: center; align-items: center; z-index: 100;
-    }
-    .modal-content {
-      background: var(--bg-color); border: 1px solid var(--primary);
-      width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto;
-      padding: 25px; border-radius: 20px;
-    }
-    .modal-content h2 { margin-top: 0; color: var(--accent); text-align: center; }
-    .input-group { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px; margin-bottom: 15px; }
-    .input-group input {
-      width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--secondary);
-      background: rgba(0,0,0,0.5); color: #fff; font-family: monospace; margin-top: 8px;
-    }
-    .close-btn { background: var(--danger); border-color: var(--danger); color: #fff; margin-top: 20px; }
-
-    #toast {
-      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-      background: var(--primary); color: #000; padding: 12px 25px;
-      border-radius: 30px; font-weight: bold; opacity: 0; transition: opacity 0.3s;
-      pointer-events: none; z-index: 200; box-shadow: 0 5px 15px rgba(102, 252, 241, 0.5);
-    }
+    #toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #000; padding: 10px 20px; border-radius: 20px; font-weight: bold; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>Satoshi Egg</h1>
-    <div id="mempool-status">Mempool Connecting...</div>
+    <div id="mempool-status">Connecting...</div>
   </header>
   
   <main>
     <div class="glass-panel">
-      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-        <span class="stat-label">Health Points</span>
-        <span class="stat-label" id="hp-text">100 / 100</span>
+      <div class="bar-wrapper">
+        <div class="bar-label-row"><span>HP (エサ)</span><span id="hp-text">100/100</span></div>
+        <div class="bar-bg"><div id="hp-bar" class="bar-fill"></div></div>
       </div>
-      <div class="hp-container"><div id="hp-bar"></div></div>
+      <div class="bar-wrapper">
+        <div class="bar-label-row"><span style="color:#ff9a9e;">ごきげん (遊ぶ)</span><span id="mood-text">100/100</span></div>
+        <div class="bar-bg"><div id="mood-bar" class="bar-fill"></div></div>
+      </div>
       
       <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-label">経過ブロック(年齢)</div>
-          <div class="stat-value crypto-font" id="age-text">0</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">放置タイマー</div>
-          <div class="stat-value crypto-font" id="idle-time">00:00:00</div>
-        </div>
-        <div class="stat-box full-width">
-          <div class="stat-label">現在のすがた</div>
-          <div class="stat-value" id="stage-text">🥚 卵</div>
-        </div>
+        <div class="stat-box"><div class="stat-label">経過ブロック(年齢)</div><div class="stat-value crypto-font" id="age-text">0</div></div>
+        <div class="stat-box"><div class="stat-label">放置時間</div><div class="stat-value crypto-font" id="idle-time">00:00:00</div></div>
+        <div class="stat-box" style="grid-column: span 2;"><div class="stat-label">現在のすがた</div><div class="stat-value" id="stage-text">🥚 卵</div></div>
       </div>
-
-      <div id="titles-container"></div>
     </div>
 
     <div id="character-container">
+      <div id="sick-indicator" class="sick-icon">💀</div>
+      <div id="junks-container"></div>
       <div id="character-display"></div>
     </div>
 
-    <div class="actions" id="action-buttons">
-      <button onclick="feedPet()" class="btn-accent">🍖 Tx手数料を与える (HP回復)</button>
-      <button onclick="openEvoModal()">🌟 特別進化の儀式</button>
+    <div class="action-grid" id="action-buttons">
+      <button class="btn-feed" onclick="action('feed')"><span style="font-size:1.5rem">🍖</span>Tx手数料(エサ)</button>
+      <button class="btn-play" onclick="action('play')"><span style="font-size:1.5rem">🎮</span>ハッシュ計算(遊ぶ)</button>
+      <button class="btn-clean" onclick="action('clean')"><span style="font-size:1.5rem">🧹</span>メモリ解放(掃除)</button>
+      <button class="btn-cure" onclick="action('cure')"><span style="font-size:1.5rem">💉</span>バグ修正(治療)</button>
+      <button class="btn-full" onclick="openEvoModal()">🌟 特別進化の儀式 (命懸け)</button>
     </div>
 
-    <!-- 開発・テスト用パネル -->
     <div class="debug-panel">
-      <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 8px;">🔧 テスト機能 (開発用)</div>
-      <div style="display: flex; gap: 10px;">
-        <button onclick="forceNextStage()" style="border-color: #ffd700; color: #ffd700;">⏩ 【UXTO】次へ</button>
-        <button onclick="openGallery()" style="border-color: #c5c6c7; color: #c5c6c7;">📖 図鑑を見る</button>
-      </div>
+      <button onclick="forceNextStage()" style="border-color:#ffd700; color:#ffd700;">⏩【UXTO】次へ</button>
+      <button onclick="openGallery()" style="border-color:#fff; color:#fff;">📖 図鑑</button>
     </div>
   </main>
 
-  <!-- 特別進化モーダル -->
+  <!-- モーダル: 儀式 -->
   <div id="modal-evo" class="modal-overlay">
     <div class="modal-content">
-      <h2>🌟 特別進化の儀式</h2>
-      <p style="font-size:0.85rem; color:#aaa; text-align:center;">伝説の姿になるための試練です。<br>(成体まで育っている必要があります)</p>
+      <h2 style="color:var(--danger)">⚠️ 特別進化の儀式</h2>
+      <p style="font-size:0.8rem; color:#aaa;">伝説の姿になるための過酷な試練です。<br><strong style="color:var(--danger)">成功率は50%。失敗すると消滅します。</strong></p>
       
-      <div class="input-group">
-        <label style="color:var(--primary); font-weight:bold;">🎮 ゲームヒーロー形態</label>
-        <p style="font-size:0.75rem; margin:5px 0 0 0; color:#888;">BITPUYO トップ3の証明コード<br>(※デモ用: <code>BITPUYO2026</code>)</p>
-        <input type="text" id="hero-code" placeholder="コードを入力">
-        <button onclick="checkEvoHero()" style="margin-top:10px; padding:8px;">進化する</button>
+      <div id="evo-inputs">
+        <div class="input-group">
+          <label style="color:var(--primary);">🎮 ゲームヒーロー形態 (BITPUYO)</label>
+          <input type="text" id="hero-code" placeholder="コード (デモ: BITPUYO2026)">
+          <button onclick="startRitual('hero')" style="width:100%; margin-top:10px;">儀式を開始する</button>
+        </div>
       </div>
 
-      <div class="input-group">
-        <label style="color:var(--accent); font-weight:bold;">🔥 富豪形態</label>
-        <p style="font-size:0.75rem; margin:5px 0 0 0; color:#888;">あなたのアドレスへの着金を監視します</p>
-        <input type="text" id="rich-address" placeholder="bc1q...">
-        <button onclick="checkEvoRich()" style="margin-top:10px; padding:8px; border-color:var(--accent); color:var(--accent);">APIで着金確認</button>
+      <div id="ritual-box">
+        <h3 style="color:#fff; margin:0 0 10px 0;" id="ritual-msg">ハッシュ計算中...</h3>
+        <div class="bar-bg" style="height:15px;"><div id="ritual-bar"></div></div>
       </div>
       
-      <button onclick="closeModal('modal-evo')" class="close-btn">閉じる</button>
+      <button onclick="closeModal('modal-evo')" class="btn-clean" style="width:100%; margin-top:15px;" id="close-evo-btn">やめておく</button>
     </div>
   </div>
 
-  <!-- キャラクター図鑑モーダル -->
+  <!-- モーダル: 図鑑 -->
   <div id="modal-gallery" class="modal-overlay">
-    <div class="modal-content" style="max-width: 600px;">
-      <h2>📖 キャラクター図鑑</h2>
-      <div id="gallery-container" style="display:flex; flex-wrap:wrap; gap:15px; justify-content:center; margin-top:20px;">
-        <!-- JSで生成 -->
-      </div>
-      <button onclick="closeModal('modal-gallery')" class="close-btn">閉じる</button>
+    <div class="modal-content" style="max-width:600px; max-height:80vh;">
+      <h2>📖 全キャラクター図鑑</h2>
+      <div id="gallery-container" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;"></div>
+      <button onclick="closeModal('modal-gallery')" class="btn-clean" style="width:100%; margin-top:15px;">閉じる</button>
     </div>
   </div>
 
   <div id="toast">メッセージ</div>
 
   <script>
-    // --- キャラクターSVG定義 ---
+    // --- 膨大なSVG定義 ---
+    // 0:ノーマル, 1:スライム/四角, 2:トゲ/星, 3:一つ目/異形, 4:耳/翼, 5:盾/メカ, 6:神聖/白
+    const TPL = (svgBody, anim="anim-float") => `<svg class="character-svg ${anim}" viewBox="0 0 100 100">${svgBody}</svg>`;
+    
     const SVGS = {
-      egg: `<svg class="character-svg anim-pulse" viewBox="0 0 100 100"><defs><linearGradient id="eggGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffd700" /><stop offset="100%" stop-color="#f7931a" /></linearGradient></defs><rect x="25" y="25" width="50" height="50" rx="15" fill="url(#eggGrad)" /><text x="50" y="58" font-family="Orbitron" font-size="28" fill="#fff" text-anchor="middle" font-weight="bold">B</text></svg>`,
-      baby: `<svg class="character-svg anim-float" viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="#f7931a" /><circle cx="40" cy="45" r="6" fill="#fff" /><circle cx="60" cy="45" r="6" fill="#fff" /><circle cx="40" cy="45" r="3" fill="#000" /><circle cx="60" cy="45" r="3" fill="#000" /><path d="M45,60 Q50,65 55,60" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><line x1="20" y1="50" x2="10" y2="40" stroke="#f7931a" stroke-width="4" stroke-linecap="round"/><line x1="80" y1="50" x2="90" y2="40" stroke="#f7931a" stroke-width="4" stroke-linecap="round"/></svg>`,
-      kid: `<svg class="character-svg anim-float" viewBox="0 0 100 100"><polygon points="50,15 85,35 85,75 50,95 15,75 15,35" fill="#45a29e" stroke="#66fcf1" stroke-width="2"/><circle cx="35" cy="45" r="5" fill="#1f2833" /><circle cx="65" cy="45" r="5" fill="#1f2833" /><rect x="40" y="65" width="20" height="4" fill="#1f2833" /><path d="M15,35 L30,50 M85,35 L70,50 M15,75 L30,60 M85,75 L70,60" stroke="#66fcf1" stroke-width="2"/></svg>`,
-      teen: `<svg class="character-svg anim-float" viewBox="0 0 100 100"><path d="M50,5 L95,50 L50,95 L5,50 Z" fill="#1f2833" stroke="#f7931a" stroke-width="4"/><polyline points="25,50 40,35 60,65 75,50" fill="none" stroke="#66fcf1" stroke-width="4" /><circle cx="50" cy="50" r="12" fill="#f7931a" /></svg>`,
-      adult: `<svg class="character-svg anim-float" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="5" fill="#0b0c10" stroke="#66fcf1" stroke-width="4"/><rect x="30" y="35" width="40" height="8" fill="#45a29e" /><rect x="30" y="55" width="40" height="8" fill="#45a29e" /><circle cx="40" cy="39" r="3" fill="#66fcf1" class="anim-pulse"/><circle cx="40" cy="59" r="3" fill="#f7931a" class="anim-pulse"/><text x="50" y="15" font-family="Orbitron" font-size="12" fill="#f7931a" text-anchor="middle">FULL NODE</text></svg>`,
-      hero: `<svg class="character-svg anim-float" viewBox="0 0 100 100"><rect x="30" y="30" width="40" height="40" fill="#ff4e50" /><polygon points="30,30 35,10 50,20 65,10 70,30" fill="#ffd700" /><rect x="75" y="20" width="6" height="50" fill="#c5c6c7" /><rect x="70" y="65" width="16" height="6" fill="#f7931a" /><rect x="40" y="45" width="6" height="6" fill="#fff" /><rect x="54" y="45" width="6" height="6" fill="#fff" /></svg>`,
-      rich: `<svg class="character-svg anim-float" viewBox="0 0 100 100"><path d="M10,60 C10,30 40,20 60,30 C80,40 90,20 90,20 C90,60 70,80 50,80 C30,80 10,70 10,60 Z" fill="#f7931a" /><path d="M40,20 L45,5 L50,15 L55,5 L60,20 Z" fill="#ffd700" /><circle cx="30" cy="45" r="5" fill="#1f2833" /><circle cx="32" cy="43" r="2" fill="#fff" /><path d="M15,65 Q30,75 45,65" fill="none" stroke="#1f2833" stroke-width="3"/></svg>`,
-      dead: `<div style="font-size: 5rem; animation: float 4s ease-in-out infinite;">🪦</div>`
+      egg: [TPL(`<defs><linearGradient id="gE" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffd700"/><stop offset="100%" stop-color="#f7931a"/></linearGradient></defs><rect x="25" y="25" width="50" height="50" rx="15" fill="url(#gE)" /><text x="50" y="58" font-family="Orbitron" font-size="28" fill="#fff" text-anchor="middle" font-weight="bold">B</text>`, "anim-pulse")],
+      baby: [
+        TPL(`<circle cx="50" cy="50" r="30" fill="#f7931a" /><circle cx="40" cy="45" r="5" fill="#fff"/><circle cx="60" cy="45" r="5" fill="#fff"/><circle cx="40" cy="45" r="2" fill="#0"/><circle cx="60" cy="45" r="2" fill="#0"/>`), // 0: Normal
+        TPL(`<rect x="25" y="30" width="50" height="40" rx="10" fill="#66fcf1"/><circle cx="40" cy="45" r="4" fill="#0"/><circle cx="60" cy="45" r="4" fill="#0"/>`), // 1: Slime
+        TPL(`<circle cx="50" cy="50" r="30" fill="#ffd700" /><polygon points="50,10 55,20 45,20" fill="#ffd700"/><polygon points="90,50 80,45 80,55" fill="#ffd700"/><polygon points="10,50 20,45 20,55" fill="#ffd700"/><circle cx="50" cy="50" r="5" fill="#0"/>`), // 2: Spike
+        TPL(`<circle cx="50" cy="50" r="30" fill="#c77dff" /><circle cx="50" cy="45" r="12" fill="#fff"/><circle cx="50" cy="45" r="4" fill="#0"/>`), // 3: Cyclops
+        TPL(`<polygon points="25,25 35,40 20,40" fill="#00f5d4"/><polygon points="75,25 80,40 65,40" fill="#00f5d4"/><circle cx="50" cy="50" r="30" fill="#00f5d4" /><circle cx="40" cy="50" r="4" fill="#0"/><circle cx="60" cy="50" r="4" fill="#0"/>`), // 4: Ears
+        TPL(`<circle cx="50" cy="50" r="30" fill="#ff4e50" /><rect x="30" y="40" width="40" height="10" fill="#0"/><circle cx="40" cy="45" r="2" fill="#f00"/><circle cx="60" cy="45" r="2" fill="#f00"/>`), // 5: Robo
+        TPL(`<ellipse cx="50" cy="20" rx="20" ry="5" fill="none" stroke="#fff" stroke-width="3"/><circle cx="50" cy="50" r="30" fill="#fff" /><circle cx="40" cy="45" r="4" fill="#0"/><circle cx="60" cy="45" r="4" fill="#0"/>`) // 6: Angel
+      ],
+      kid: [
+        TPL(`<polygon points="50,15 85,75 15,75" fill="#45a29e" stroke="#66fcf1" stroke-width="2"/><circle cx="40" cy="55" r="4" fill="#0"/><circle cx="60" cy="55" r="4" fill="#0"/>`), // 0: Tri
+        TPL(`<polygon points="50,10 60,35 90,40 65,55 75,85 50,70 25,85 35,55 10,40 40,35" fill="#f7931a"/><circle cx="40" cy="50" r="3" fill="#0"/><circle cx="60" cy="50" r="3" fill="#0"/>`), // 1: Star
+        TPL(`<polygon points="50,20 80,50 50,80 20,50" fill="#00f5d4"/><line x1="20" y1="50" x2="80" y2="50" stroke="#0" stroke-width="2"/>`), // 2: Diamond
+        TPL(`<polygon points="30,20 70,20 90,50 70,80 30,80 10,50" fill="#c77dff"/><circle cx="50" cy="50" r="10" fill="#0"/>`), // 3: Hex
+        TPL(`<polygon points="15,25 85,25 50,85" fill="#ff4e50"/><circle cx="50" cy="40" r="6" fill="#fff"/>`), // 4: RevTri
+        TPL(`<path d="M20,20 L80,20 L80,50 Q80,80 50,90 Q20,80 20,50 Z" fill="#ffd700"/><rect x="40" y="40" width="20" height="5" fill="#0"/>`), // 5: Shield
+        TPL(`<rect x="30" y="30" width="40" height="40" fill="#fff" stroke="#ccc" stroke-width="4"/><circle cx="40" cy="45" r="3" fill="#0"/><circle cx="60" cy="45" r="3" fill="#0"/>`) // 6: Block
+      ],
+      teen: [
+        TPL(`<polygon points="50,10 80,50 50,90 20,50" fill="#1f2833" stroke="#f7931a" stroke-width="4"/><circle cx="50" cy="50" r="8" fill="#f7931a"/>`), // 0
+        TPL(`<path d="M50,90 Q20,60 20,40 A30,30 0 0,1 80,40 Q80,60 50,90" fill="#ff4e50"/><circle cx="40" cy="50" r="4" fill="#0"/><circle cx="60" cy="50" r="4" fill="#0"/>`), // 1: Flame
+        TPL(`<path d="M50,50 Q20,20 10,50 Q20,80 50,50 M50,50 Q80,20 90,50 Q80,80 50,50" fill="#66fcf1"/><circle cx="50" cy="50" r="10" fill="#fff"/>`), // 2: Wing
+        TPL(`<circle cx="50" cy="50" r="25" fill="#c77dff"/><ellipse cx="50" cy="50" rx="40" ry="10" fill="none" stroke="#fff" stroke-width="4"/>`), // 3: Saturn
+        TPL(`<polygon points="45,10 55,10 55,70 65,70 65,80 35,80 35,70 45,70" fill="#00f5d4"/>`), // 4: Sword
+        TPL(`<path d="M30,60 A20,20 0 0,1 50,30 A20,20 0 0,1 70,60 Z" fill="#fff"/><circle cx="40" cy="50" r="4" fill="#0"/><circle cx="60" cy="50" r="4" fill="#0"/>`), // 5: Cloud
+        TPL(`<path d="M10,50 Q50,10 90,50 Q50,90 10,50" fill="#1f2833" stroke="#ffd700" stroke-width="3"/><circle cx="50" cy="50" r="15" fill="#ffd700"/><circle cx="50" cy="50" r="5" fill="#0"/>`) // 6: Eye
+      ],
+      adult: [
+        TPL(`<rect x="25" y="20" width="50" height="60" rx="5" fill="#0b0c10" stroke="#66fcf1" stroke-width="3"/><line x1="35" y1="40" x2="65" y2="40" stroke="#45a29e" stroke-width="5"/><line x1="35" y1="60" x2="65" y2="60" stroke="#45a29e" stroke-width="5"/><circle cx="50" cy="30" r="3" fill="#f7931a"/>`), // 0: Server
+        TPL(`<rect x="20" y="30" width="60" height="40" fill="#333" stroke="#fff" stroke-width="2"/><circle cx="35" cy="50" r="10" fill="#111"/><circle cx="65" cy="50" r="10" fill="#111"/><path d="M30,50 L40,50 M60,50 L70,50" stroke="#ccc"/>`), // 1: ASIC
+        TPL(`<rect x="40" y="20" width="20" height="15" fill="#aaa"/><rect x="30" y="35" width="40" height="50" rx="3" fill="#111" stroke="#f7931a" stroke-width="2"/><circle cx="50" cy="60" r="8" fill="#333"/>`), // 2: Ledger
+        TPL(`<rect x="10" y="40" width="30" height="20" fill="#45a29e"/><rect x="60" y="40" width="30" height="20" fill="#45a29e"/><circle cx="50" cy="50" r="15" fill="#c77dff"/><line x1="50" y1="20" x2="50" y2="35" stroke="#fff" stroke-width="2"/>`), // 3: Satellite
+        TPL(`<rect x="20" y="20" width="60" height="60" rx="10" fill="#555" stroke="#ccc" stroke-width="4"/><circle cx="50" cy="50" r="15" fill="#333" stroke="#fff" stroke-width="2"/><circle cx="50" cy="50" r="3" fill="#fff"/>`), // 4: Vault
+        TPL(`<polygon points="50,15 85,80 15,80" fill="#ffd700"/><polygon points="50,15 85,80 50,80" fill="#daa520"/><circle cx="50" cy="55" r="10" fill="#fff"/><circle cx="50" cy="55" r="4" fill="#0"/>`), // 5: Pyramid
+        TPL(`<path d="M30,30 L70,30 L80,70 L20,70 Z" fill="#ff4e50"/><circle cx="40" cy="50" r="5" fill="#0"/><circle cx="60" cy="50" r="5" fill="#0"/><line x1="50" y1="10" x2="50" y2="30" stroke="#fff" stroke-width="3"/>`) // 6: Mecha
+      ],
+      hero: [TPL(`<rect x="30" y="30" width="40" height="40" fill="#ff4e50" /><polygon points="30,30 35,10 50,20 65,10 70,30" fill="#ffd700" /><rect x="75" y="20" width="6" height="50" fill="#c5c6c7" /><rect x="70" y="65" width="16" height="6" fill="#f7931a" /><rect x="40" y="45" width="6" height="6" fill="#fff" /><rect x="54" y="45" width="6" height="6" fill="#fff" />`)],
+      rich: [TPL(`<path d="M10,60 C10,30 40,20 60,30 C80,40 90,20 90,20 C90,60 70,80 50,80 C30,80 10,70 10,60 Z" fill="#f7931a" /><path d="M40,20 L45,5 L50,15 L55,5 L60,20 Z" fill="#ffd700" /><circle cx="30" cy="45" r="5" fill="#1f2833" /><circle cx="32" cy="43" r="2" fill="#fff" /><path d="M15,65 Q30,75 45,65" fill="none" stroke="#1f2833" stroke-width="3"/>`)],
+      dead: [TPL(`<rect x="35" y="40" width="30" height="50" rx="5" fill="#666"/><rect x="25" y="80" width="50" height="10" rx="2" fill="#444"/><line x1="45" y1="55" x2="55" y2="55" stroke="#0" stroke-width="2"/><line x1="50" y1="50" x2="50" y2="60" stroke="#0" stroke-width="2"/>`)]
     };
 
     const STAGES = [
@@ -240,197 +244,239 @@
       { id: 'teen', name: '🐦 Hash Teen', maxAge: 431 },
       { id: 'adult', name: '👑 Node Master', maxAge: 719 }
     ];
+    const LEGENDS = { 'hero': { id: 'hero', name: '⚡ Arcade Satoshi' }, 'rich': { id: 'rich', name: '🔥 Whale Leviathan' } };
 
-    const LEGENDS = {
-      'hero': { id: 'hero', name: '⚡ Arcade Satoshi' },
-      'rich': { id: 'rich', name: '🔥 Whale Leviathan' }
+    let state = {
+      birthHeight: 0, hp: 100, mood: 100, txJunk: 0, isSick: false,
+      lastAccess: Date.now(), specialEvo: null, titles: [], isDead: false, deathReason: "",
+      variation: 0
     };
+    let currentTipHeight = 0;
 
-    let appState = { birthHeight: 0, hp: 100, lastAccess: Date.now(), specialEvo: null, titles: [], isDead: false, deathReason: "" };
-    let currentTipHeight = 0; // グローバルで保持
+    // --- コアロジック ---
+    function loadData() { const d = localStorage.getItem('satoshi_egg_v2'); if(d) state = Object.assign(state, JSON.parse(d)); }
+    function saveData() { localStorage.setItem('satoshi_egg_v2', JSON.stringify(state)); }
 
-    function loadData() { const data = localStorage.getItem('satoshi_egg_save'); if (data) appState = JSON.parse(data); }
-    function saveData() { localStorage.setItem('satoshi_egg_save', JSON.stringify(appState)); }
-
-    async function getApiData() {
+    async function updateNetwork() {
+      if (state.isDead) return renderDead();
       try {
-        const [tipRes, feeRes] = await Promise.all([ fetch('https://mempool.space/api/blocks/tip/height'), fetch('https://mempool.space/api/v1/fees/recommended') ]);
-        return { height: parseInt(await tipRes.text()), fees: await feeRes.json() };
-      } catch (e) { return null; }
+        const [tipRes, feeRes] = await Promise.all([fetch('https://mempool.space/api/blocks/tip/height'), fetch('https://mempool.space/api/v1/fees/recommended')]);
+        currentTipHeight = parseInt(await tipRes.text());
+        document.getElementById('mempool-status').innerText = `🌍 Block: ${currentTipHeight} | 🚀 Fee: ${await feeRes.json().then(f=>f.fastestFee)} sat/vB`;
+        if(!state.birthHeight) { state.birthHeight = currentTipHeight; state.variation = Math.floor(Math.random()*7); saveData(); }
+      } catch(e) {}
     }
 
-    async function updateGame() {
-      if (appState.isDead) return renderDead();
-      const apiData = await getApiData();
-      if (!apiData) return;
-
-      currentTipHeight = apiData.height;
-      document.getElementById('mempool-status').innerText = `🌍 Block: ${currentTipHeight} | 🚀 FastFee: ${apiData.fees.fastestFee} sat/vB`;
-
-      if (!appState.birthHeight) {
-        appState.birthHeight = currentTipHeight;
-        appState.lastAccess = Date.now();
-        saveData();
-      }
-      calculateStatus();
-    }
-
-    function calculateStatus() {
-      if (appState.isDead || currentTipHeight === 0) return;
-      const age = currentTipHeight - appState.birthHeight;
-      const msPassed = Date.now() - appState.lastAccess;
-      
-      // HPの計算 (実際に減らすのはエサやり等のタイミングだが、死の判定はここで行う)
-      let damage = (msPassed / 86400000) * 50; 
-      let currentHp = appState.hp - damage;
-
-      if (currentHp <= 0) {
-        appState.hp = 0; appState.lastAccess = Date.now();
-        die("💀 餓死しました"); return;
-      }
-      if (age >= 1008) {
-        die("👼 老衰 (天寿を全うしました)"); return;
-      }
-
-      renderStage(age);
-      renderStats(age, currentHp);
-    }
-
-    // --- 放置タイマー（毎秒更新） ---
+    // 毎秒ループ (たまごっちの心臓部)
     setInterval(() => {
-      if (appState.isDead || currentTipHeight === 0) return;
-      const msPassed = Date.now() - appState.lastAccess;
+      if(state.isDead || currentTipHeight === 0) return;
+      const ms = Date.now() - state.lastAccess;
       
-      // 時間表示
-      const s = Math.floor((msPassed / 1000) % 60).toString().padStart(2, '0');
-      const m = Math.floor((msPassed / 60000) % 60).toString().padStart(2, '0');
-      const h = Math.floor(msPassed / 3600000).toString().padStart(2, '0');
+      // 時計
+      const s = Math.floor((ms/1000)%60).toString().padStart(2,'0');
+      const m = Math.floor((ms/60000)%60).toString().padStart(2,'0');
+      const h = Math.floor(ms/3600000).toString().padStart(2,'0');
       document.getElementById('idle-time').innerText = `${h}:${m}:${s}`;
 
-      // HPバーのリアルタイム減少反映（セーブはしない）
-      let displayHp = Math.max(0, appState.hp - (msPassed / 86400000) * 50);
-      document.getElementById('hp-text').innerText = `${Math.floor(displayHp)} / 100`;
-      document.getElementById('hp-bar').style.width = `${displayHp}%`;
+      // パラメータ減少 (病気なら2倍の速度)
+      const mult = state.isSick ? 2 : 1;
+      let hpDrop = (ms/86400000) * 50 * mult; // 1日で50減る
+      let moodDrop = (ms/43200000) * 50 * mult; // 12時間で50減る
+      
+      let curHp = Math.max(0, state.hp - hpDrop);
+      let curMood = Math.max(0, state.mood - moodDrop);
+
+      // ゴミの自動発生 (3分に1回確率で発生)
+      if (Math.random() < 0.001 && state.txJunk < 5) {
+        state.txJunk++;
+        if (state.txJunk >= 3 && Math.random() < 0.3) state.isSick = true;
+        saveData(); renderJunks();
+      }
+
+      // 死の判定
+      if (curHp <= 0) { state.hp = 0; die("💀 餓死しました..."); return; }
+      const age = currentTipHeight - state.birthHeight;
+      if (age >= 1008) { die("👼 老衰 (天寿を全うしました)"); return; }
+
+      // UI反映 (セーブはアクション時のみ)
+      document.getElementById('hp-text').innerText = `${Math.floor(curHp)}/100`;
+      document.getElementById('hp-bar').style.width = `${curHp}%`;
+      document.getElementById('mood-text').innerText = `${Math.floor(curMood)}/100`;
+      document.getElementById('mood-bar').style.width = `${curMood}%`;
+      document.getElementById('age-text').innerText = age;
+      
+      document.getElementById('sick-indicator').style.display = state.isSick ? 'block' : 'none';
+      renderStage(age);
     }, 1000);
 
-    function renderStage(age) {
-      let currentStage = STAGES[STAGES.length - 1];
-      if (age >= 720 && appState.specialEvo) currentStage = LEGENDS[appState.specialEvo];
-      else { for (let s of STAGES) { if (age <= s.maxAge) { currentStage = s; break; } } }
-      document.getElementById('stage-text').innerText = currentStage.name;
-      document.getElementById('character-display').innerHTML = SVGS[currentStage.id];
+    function applyDrops() {
+      const ms = Date.now() - state.lastAccess;
+      const mult = state.isSick ? 2 : 1;
+      state.hp = Math.max(0, state.hp - (ms/86400000)*50*mult);
+      state.mood = Math.max(0, state.mood - (ms/43200000)*50*mult);
+      state.lastAccess = Date.now();
     }
 
-    function renderStats(age, currentHp) {
-      document.getElementById('age-text').innerText = age;
-      const tc = document.getElementById('titles-container');
-      tc.innerHTML = '';
-      appState.titles.forEach(t => { let s = document.createElement('span'); s.className = 'badge'; s.innerText = t; tc.appendChild(s); });
-    }
+    // --- アクション・アニメーション ---
+    function action(type) {
+      if(state.isDead) return;
+      applyDrops();
 
-    function feedPet() {
-      if(appState.isDead) return;
-      // まず現状のダメージを精算
-      const msPassed = Date.now() - appState.lastAccess;
-      let damage = (msPassed / 86400000) * 50;
-      appState.hp = Math.max(0, appState.hp - damage);
-      
-      // 回復してアクセス時間をリセット
-      appState.hp = Math.min(100, appState.hp + 15);
-      appState.lastAccess = Date.now();
-      showToast("🍖 HPが回復し、放置タイマーがリセットされた！");
+      const chara = document.querySelector('.character-svg');
+      if(chara) { chara.classList.remove('anim-jump'); void chara.offsetWidth; chara.classList.add('anim-jump'); }
+
+      if (type === 'feed') {
+        state.hp = Math.min(100, state.hp + 20); showToast("🍖 HP回復！"); createParticles('❤️', '#ff4e50');
+      } else if (type === 'play') {
+        if(state.isSick) { showToast("⚠️ 病気で遊べない！"); return; }
+        state.mood = Math.min(100, state.mood + 30); showToast("🎮 ごきげんUP！"); createParticles('♪', '#ffd700');
+      } else if (type === 'clean') {
+        if(state.txJunk === 0) { showToast("🧹 綺麗です"); return; }
+        state.txJunk = 0; showToast("🧹 メモリ解放完了！"); createParticles('✨', '#66fcf1'); renderJunks();
+      } else if (type === 'cure') {
+        if(!state.isSick) { showToast("💉 健康です"); return; }
+        state.isSick = false; showToast("💉 バグ修正完了！"); createParticles('💊', '#00f5d4'); document.getElementById('sick-indicator').style.display='none';
+      }
       saveData();
-      calculateStatus();
+    }
+
+    function createParticles(char, color) {
+      const c = document.getElementById('character-container');
+      for(let i=0; i<5; i++) {
+        let p = document.createElement('div');
+        p.className = 'particle'; p.innerText = char; p.style.color = color;
+        p.style.left = (40 + Math.random()*20) + '%'; p.style.top = (40 + Math.random()*20) + '%';
+        p.style.animationDuration = (0.5 + Math.random()*0.5) + 's';
+        c.appendChild(p); setTimeout(()=>p.remove(), 1000);
+      }
+    }
+
+    function renderJunks() {
+      const c = document.getElementById('junks-container'); c.innerHTML = '';
+      for(let i=0; i<state.txJunk; i++) {
+        let j = document.createElement('div'); j.className = 'junk-icon'; j.innerText = '⚠️';
+        j.style.left = (10 + Math.random()*80) + '%'; j.style.top = (60 + Math.random()*30) + '%';
+        c.appendChild(j);
+      }
+    }
+
+    // --- レンダリング関連 ---
+    let lastStageId = "";
+    function renderStage(age) {
+      let currentStage = STAGES[STAGES.length-1];
+      if (age >= 720 && state.specialEvo) currentStage = LEGENDS[state.specialEvo];
+      else { for (let s of STAGES) { if (age <= s.maxAge) { currentStage = s; break; } } }
+      
+      // 進化した瞬間にバリエーションをランダム再設定（卵以外）
+      if (lastStageId !== currentStage.id && lastStageId !== "") {
+        state.variation = Math.floor(Math.random()*7); saveData();
+        createParticles('🌟', '#fff');
+      }
+      lastStageId = currentStage.id;
+
+      document.getElementById('stage-text').innerText = currentStage.name;
+      const svgArr = SVGS[currentStage.id];
+      const svgStr = svgArr[state.variation % svgArr.length]; // 配列外参照防止
+      
+      const disp = document.getElementById('character-display');
+      if(disp.innerHTML !== svgStr) disp.innerHTML = svgStr;
     }
 
     function die(reason) {
-      appState.isDead = true; appState.deathReason = reason;
-      if (appState.specialEvo) appState.titles.push(`前世: ${LEGENDS[appState.specialEvo].name}`);
+      state.isDead = true; state.deathReason = reason;
+      if (state.specialEvo) state.titles.push(`前世: ${LEGENDS[state.specialEvo].name}`);
       saveData(); renderDead();
     }
 
     function renderDead() {
-      document.getElementById('stage-text').innerText = appState.deathReason;
-      document.getElementById('character-display').innerHTML = SVGS['dead'];
-      document.getElementById('hp-bar').style.width = `0%`;
-      document.getElementById('action-buttons').innerHTML = `<button onclick="reincarnate()" class="btn-accent">♻️ 転生する (卵からやり直し)</button>`;
+      document.getElementById('stage-text').innerText = state.deathReason;
+      document.getElementById('character-display').innerHTML = SVGS['dead'][0];
+      document.getElementById('hp-bar').style.width = `0%`; document.getElementById('mood-bar').style.width = `0%`;
+      document.getElementById('action-buttons').innerHTML = `<button class="btn-full" onclick="reincarnate()">♻️ 転生する (卵から)</button>`;
+      document.getElementById('junks-container').innerHTML = ''; document.getElementById('sick-indicator').style.display='none';
     }
 
     function reincarnate() {
-      appState.birthHeight = 0; appState.hp = 100; appState.isDead = false; appState.specialEvo = null; appState.deathReason = "";
+      state = { birthHeight: 0, hp: 100, mood: 100, txJunk: 0, isSick: false, lastAccess: Date.now(), specialEvo: null, titles: state.titles, isDead: false, deathReason: "", variation: 0 };
       saveData(); location.reload();
     }
 
-    // --- 【UXTO】 テスト用ボタン ---
-    function forceNextStage() {
-      if (appState.isDead || currentTipHeight === 0) return;
-      const currentAge = currentTipHeight - appState.birthHeight;
-      let nextAge = 0;
-      
-      if (currentAge < 12) nextAge = 12; // babyへ
-      else if (currentAge < 72) nextAge = 72; // kidへ
-      else if (currentAge < 216) nextAge = 216; // teenへ
-      else if (currentAge < 432) nextAge = 432; // adultへ
-      else if (currentAge < 720) {
-        showToast("⚠️ これ以上は通常進化しません。特別進化を試してください！"); return;
-      }
-      
-      appState.birthHeight = currentTipHeight - nextAge; // 過去に生まれたことにする
-      saveData();
-      calculateStatus();
-      showToast("⏩ 【UXTO】ブロック高を早送りしました！");
+    // --- 命懸けの儀式 ---
+    function openEvoModal() {
+      const age = currentTipHeight - state.birthHeight;
+      if(age < 432) { showToast("⚠️ まだ成体(Node Master)ではありません"); return; }
+      if(state.specialEvo) { showToast("⚠️ 既に伝説の姿です"); return; }
+      document.getElementById('evo-inputs').style.display = 'block';
+      document.getElementById('ritual-box').style.display = 'none';
+      document.getElementById('modal-evo').style.display = 'flex';
     }
 
-    // --- キャラクター図鑑 ---
+    function startRitual(type) {
+      const code = document.getElementById('hero-code').value;
+      if(type === 'hero' && code !== 'BITPUYO2026') { showToast("❌ コードが違います"); return; }
+
+      document.getElementById('evo-inputs').style.display = 'none';
+      document.getElementById('close-evo-btn').style.display = 'none';
+      const rBox = document.getElementById('ritual-box');
+      const rBar = document.getElementById('ritual-bar');
+      const rMsg = document.getElementById('ritual-msg');
+      rBox.style.display = 'block'; rBar.style.width = '0%'; rMsg.innerText = "ハッシュ計算中..."; rMsg.style.color = "#fff";
+
+      // ルーレット演出 (3秒)
+      let prog = 0;
+      let intv = setInterval(() => {
+        prog += Math.random() * 15;
+        if(prog >= 100) {
+          clearInterval(intv); rBar.style.width = '100%';
+          // 確率50%で死ぬ
+          if (Math.random() < 0.5) {
+            rMsg.innerText = "🌟 儀式成功！！"; rMsg.style.color = "#ffd700";
+            setTimeout(() => {
+              state.specialEvo = type; state.birthHeight -= 720; saveData();
+              closeModal('modal-evo'); showToast("🌟 伝説の姿に進化した！"); lastStageId=""; // 強制再描画
+            }, 1500);
+          } else {
+            rMsg.innerText = "💥 オーバーヒート！"; rMsg.style.color = "#ff4e50";
+            setTimeout(() => { closeModal('modal-evo'); die("💥 儀式の負荷に耐えきれず消滅した..."); }, 1500);
+          }
+        } else {
+          rBar.style.width = prog + '%';
+        }
+      }, 300);
+    }
+
+    // --- デバッグ & 図鑑 ---
+    function forceNextStage() {
+      if (state.isDead || currentTipHeight === 0) return;
+      const age = currentTipHeight - state.birthHeight;
+      let next = 0;
+      if(age<12) next=12; else if(age<72) next=72; else if(age<216) next=216; else if(age<432) next=432;
+      else { showToast("⚠️ これ以上は通常進化しません"); return; }
+      state.birthHeight = currentTipHeight - next; saveData(); showToast("⏩ ブロック早送り");
+    }
+
     function openGallery() {
-      const container = document.getElementById('gallery-container');
-      container.innerHTML = '';
-      const allStages = [...STAGES, Object.values(LEGENDS)[0], Object.values(LEGENDS)[1], {id: 'dead', name: '🪦 墓石'}];
-      
-      allStages.forEach(s => {
-        let div = document.createElement('div');
-        div.style = "background: rgba(0,0,0,0.5); padding: 10px; border-radius: 10px; text-align:center; width: 130px; border: 1px solid rgba(102,252,241,0.2);";
-        div.innerHTML = `
-          <div style="height: 90px; display:flex; justify-content:center; align-items:center; transform: scale(0.6);">
-            ${SVGS[s.id]}
-          </div>
-          <div style="font-size:0.75rem; color:var(--primary); font-weight:bold;">${s.name}</div>
-        `;
-        container.appendChild(div);
+      const c = document.getElementById('gallery-container'); c.innerHTML = '';
+      const order = [
+        {name:"Egg", arr:SVGS.egg}, {name:"Baby", arr:SVGS.baby}, {name:"Kid", arr:SVGS.kid},
+        {name:"Teen", arr:SVGS.teen}, {name:"Adult", arr:SVGS.adult}, {name:"Hero", arr:SVGS.hero},
+        {name:"Dead", arr:SVGS.dead}
+      ];
+      order.forEach(st => {
+        st.arr.forEach((svg, idx) => {
+          let d = document.createElement('div');
+          d.style = "background:rgba(0,0,0,0.5); border:1px solid #333; padding:5px; border-radius:10px; width:70px; text-align:center;";
+          d.innerHTML = `<div style="transform:scale(0.5); width:100px; height:100px; margin:-25px -15px;">${svg}</div><div style="font-size:0.6rem; color:#888;">${st.name} ${idx}</div>`;
+          c.appendChild(d);
+        });
       });
       document.getElementById('modal-gallery').style.display = 'flex';
     }
 
-    // モーダルとトースト管理
-    function openEvoModal() { document.getElementById('modal-evo').style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.opacity = 1; setTimeout(() => t.style.opacity = 0, 3000); }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; document.getElementById('close-evo-btn').style.display = 'block'; }
+    function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.opacity = 1; setTimeout(() => t.style.opacity = 0, 2000); }
 
-    function checkEvoHero() {
-      if(document.getElementById('hero-code').value === 'BITPUYO2026') evolveSpecial('hero');
-      else showToast("❌ コードが違います");
-    }
-
-    async function checkEvoRich() {
-      const addr = document.getElementById('rich-address').value;
-      if (!addr) return;
-      try {
-        const res = await fetch(`https://mempool.space/api/address/${addr}/txs`);
-        const txs = await res.json();
-        if(txs && txs.length > 0) evolveSpecial('rich');
-        else showToast("❌ アドレスに着金履歴がありません");
-      } catch(e) { showToast("❌ API通信エラー"); }
-    }
-
-    function evolveSpecial(type) {
-      appState.specialEvo = type;
-      appState.birthHeight -= 720; // 年齢を強制的に伝説レベルに引き上げ
-      saveData(); closeModal('modal-evo');
-      showToast("🌟 まばゆい光に包まれた…！特別進化成功！");
-      calculateStatus();
-    }
-
-    window.onload = () => { loadData(); updateGame(); setInterval(updateGame, 60000); };
+    window.onload = () => { loadData(); updateNetwork(); renderJunks(); setInterval(updateNetwork, 60000); };
   </script>
 </body>
 </html>
